@@ -44,7 +44,8 @@ import org.codehaus.plexus.util.cli.Commandline;
 
 /**
  * Abstract class for all mojos
- * 
+ *
+ * @author Jeon Ilwoong
  * @author Robert Scholte
  * @since 3.0.0
  */
@@ -53,7 +54,10 @@ public abstract class AbstractJDeprScanMojo
 {
     @Parameter( defaultValue = "${session}", readonly = true, required = true )
     private MavenSession session;
-    
+
+    @Parameter( property = "jdeprscan" )
+    private String jdeprscan = "";
+
     @Component
     private ToolchainManager toolchainManager;
 
@@ -79,19 +83,19 @@ public abstract class AbstractJDeprScanMojo
         addJDeprScanOptions( cmd );
 
         executeJDeprScanCommandLine( cmd, getConsumer() );
-        
+
         verify();
     }
-    
+
     protected CommandLineUtils.StringStreamConsumer getConsumer()
     {
-      return null;    
+      return null;
     }
-    
+
     protected void verify() throws MojoExecutionException
     {
     }
-    
+
     protected abstract boolean isForRemoval();
 
     protected void addJDeprScanOptions( Commandline cmd ) throws MojoFailureException
@@ -105,6 +109,10 @@ public abstract class AbstractJDeprScanMojo
     private String getJDeprScanExecutable()
         throws IOException
     {
+        if ( !jdeprscan.equals( "" ) )
+        {
+            return new File( jdeprscan ).getAbsolutePath();
+        }
         Toolchain tc = getToolchain();
 
         String jdeprscanExecutable = null;
@@ -139,8 +147,8 @@ public abstract class AbstractJDeprScanMojo
             return jdeprscanExe.getAbsolutePath();
         }
 
-        jdeprscanExe =
-            new File( SystemUtils.getJavaHome() + File.separator + ".." + File.separator + "sh", jdepsCommand );
+            jdeprscanExe =
+                    new File( SystemUtils.getJavaHome() + File.separator + ".." + File.separator + "sh", jdepsCommand );
 
         // ----------------------------------------------------------------------
         // Try to find jdepsExe from JAVA_HOME environment variable
